@@ -51,19 +51,19 @@ class BasicGame(GameGL):
     pixelSize = 30
 
     xBall      = 2
-    yBall      = 6
+    yBall      = 4
     xSchlaeger = 5
     xV         = 1
     yV         = 1
     score      = 0
     
-    def __init__(self, name, width = 360, height = 500):
+    def __init__(self, name, width = 360, height = 250):
         super
         self.windowName = name
         self.width      = width
         self.height     = height
         self.xMax       = 10
-        self.yMax       = 15
+        self.yMax       = 12
         self.streak     = 0
         self.rl         = RL(xMax=self.xMax, yMax=self.yMax)
         #self.rl.save()
@@ -87,7 +87,7 @@ class BasicGame(GameGL):
         glLoadIdentity()
 
         #set the state
-        state = ((self.xBall, self.yBall, self.xSchlaeger))
+        state = ((self.xBall, self.yBall, self.xSchlaeger, self.xV, self.yV))
         action = self.rl.get_action(state)# 2.0 * np.random.random() - 1.0
         
         if action < -0.3:
@@ -109,7 +109,7 @@ class BasicGame(GameGL):
             self.yV = -self.yV
 
         #set the state
-        state = ((self.xBall, self.yBall, self.xSchlaeger))
+        state = ((self.xBall, self.yBall, self.xSchlaeger, self.xV, self.yV))
         # check whether ball on bottom line
         if self.yBall == 0:
             # check whther ball is at position of player
@@ -126,12 +126,12 @@ class BasicGame(GameGL):
                 print("negative reward")
                 print(state)
                 print(action)
-                self.rl.adjust(-30, state)
+                self.rl.adjust(-20, state)
                 self.score-=1
                 self.streak = 0
             #print(self.score)
-        #elif action != 0:
-         #   self.rl.adjust(-1, state)
+        elif action != 0:
+            self.rl.adjust(-1, state)
         else:
             self.rl.adjust(0, state)
         # repaint
@@ -147,7 +147,8 @@ class BasicGame(GameGL):
             print(self.streak)
             #self.rl.save()
             time.sleep(0.1)
-
+        if self.streak > 0 and self.streak % 100 == 0:
+            self.rl.save()
 
         
         glutSwapBuffers()
